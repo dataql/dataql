@@ -1,0 +1,21 @@
+{
+    "name": "dataql/dataql",
+    "description": "Great and simple adaptation of GraphQL to PHP",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Milan Felix Šulc",
+            "email": "rkfelix@gmail.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "ninjify/qa": "^0.3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "DataQL\\": "src"
+        }
+    }
+}
