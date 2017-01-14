@@ -2,67 +2,61 @@
 
 namespace DataQL\Process;
 
+use DataQL\Input\InputNode;
 use DataQL\Input\InputQuery;
-use DataQL\Input\Item\Field;
-use DataQL\Input\QueryNode;
+use DataQL\Process\Type\ITypeResolver;
+use DataQL\Process\Walker\ProcessWalker;
 use DataQL\Schema\Schema;
-use DataQL\Type\Formula\AbstractFormulaType;
-use DataQL\Type\Scalar\AbstractScalarType;
+use DataQL\Type\Object\AbstractObjectType;
 
 class Processor
 {
 
-    /**
-     * @param Schema $schema
-     * @param InputQuery $input
-     * @return mixed
-     */
-    public function process(Schema $schema, InputQuery $input)
-    {
-        return $this->resolveNode($schema->getRoot(), $input->getNode());
-    }
+	/** @var ProcessWalker */
+	private $walker;
 
-    /**
-     * @param AbstractFormulaType $type
-     * @param QueryNode $node
-     * @return mixed
-     */
-    protected function resolveNode(AbstractFormulaType $type, QueryNode $node)
-    {
-        $data = [];
+	/** @var ITypeResolver */
+	private $typeResolver;
 
-        foreach ($node->getFields() as $inputField) {
-            if (!$type->hasField($inputField->getName())) {
-                throw new \RuntimeException(sprintf('Field "%s" not found', $inputField->getName()));
-            }
+	/**
+	 * @param ProcessWalker $walker
+	 * @param ITypeResolver $typeResolver
+	 */
+	public function __construct(ProcessWalker $walker, ITypeResolver $typeResolver)
+	{
+		$this->walker = $walker;
+		$this->typeResolver = $typeResolver;
+	}
 
-            $field = $type->getField($inputField->getName());
-            $fieldType = $field->getType();
+	/**
+	 * @param Schema $schema
+	 * @param InputQuery $input
+	 * @return mixed
+	 */
+	public function process(Schema $schema, InputQuery $input)
+	{
+		// @throw ProcessException
+		return $this->walk($schema->getRoot(), $input->getNode());
+	}
 
-            if ($fieldType instanceof AbstractScalarType) {
-                $data[$inputField->getName()] = $this->resolveField($inputField, $type, $node);
-            } else if ($fieldType instanceof AbstractFormulaType) {
-                $data[$inputField->getName()] = $this->resolveNode($fieldType, $inputField->getNode());
-            } else {
-                throw new \RuntimeException('Unsupported type');
-            }
-        }
+	/**
+	 * @param Schema $schema
+	 * @return void
+	 */
+	public function validate(Schema $schema)
+	{
+		// @throw ValidationException
+		$schema->attach($this->typeResolver);
+	}
 
-        return $data;
-    }
-
-    /**
-     * @param Field $field
-     * @param AbstractFormulaType $type
-     * @param QueryNode $formula
-     * @return mixed
-     */
-    protected function resolveField(Field $field, AbstractFormulaType $type, QueryNode $formula)
-    {
-        $resolve = $type->getField($field->getName())->getCallback();
-
-        return $resolve();
-    }
-
+	/**
+	 * @param AbstractObjectType $type
+	 * @param InputNode $input
+	 * @return mixed
+	 */
+	protected function walk(AbstractObjectType $type, InputNode $input)
+	{
+		return $this->walker->process($type, $input);
+	}
 
 }

@@ -1,18 +1,22 @@
 <?php
 
-namespace DataQL\Input;
+namespace DataQL\Input\Item;
 
-final class InputQuery
+use DataQL\Input\InputNode;
+
+final class NestedField extends StdField
 {
 
 	/** @var InputNode */
 	private $node;
 
 	/**
+	 * @param string $name
 	 * @param InputNode $node
 	 */
-	public function __construct(InputNode $node)
+	public function __construct($name, InputNode $node)
 	{
+		parent::__construct($name);
 		$this->node = $node;
 	}
 

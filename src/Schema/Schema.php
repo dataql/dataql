@@ -2,30 +2,44 @@
 
 namespace DataQL\Schema;
 
-use DataQL\Type\Formula\RootQueryType;
+use DataQL\Process\Type\ITypeResolver;
+use DataQL\Type\Object\ObjectType;
 
 class Schema
 {
 
-    /** @var RootQueryType */
-    private $root;
+	/** @var ObjectType */
+	private $root;
 
-    /**
-     * @param RootQueryType $root
-     */
-    public function __construct(RootQueryType $root)
-    {
-        $this->root = $root;
-        $this->root->attach();
-    }
+	/**
+	 * @param ObjectType $root
+	 */
+	public function __construct(ObjectType $root)
+	{
+		$this->root = $root;
+	}
 
-    /**
-     * @return RootQueryType
-     */
-    public function getRoot()
-    {
-        return $this->root;
-    }
+	/**
+	 * @return ObjectType
+	 */
+	public function getRoot()
+	{
+		return $this->root;
+	}
 
+	/**
+	 * ATTACHING ***************************************************************
+	 */
+
+	/**
+	 * Build type fields and whole type nested tree
+	 *
+	 * @return void
+	 */
+	public function attach(ITypeResolver $typeResolver)
+	{
+		// @todo AttachManager(TypeResolver)
+		$this->root->attach($typeResolver);
+	}
 
 }

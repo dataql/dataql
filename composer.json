@@ -16,7 +16,8 @@
   },
   "require-dev": {
     "ninjify/qa": "^0.3.3",
-    "ninjify/nunjuck": "^0.1.4"
+    "ninjify/nunjuck": "^0.1.4",
+    "tracy/tracy": "^2.4.4"
   },
   "autoload": {
     "psr-4": {
