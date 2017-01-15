@@ -5,8 +5,8 @@ use DataQL\Input\InputQuery;
 use DataQL\Input\Item\NestedField;
 use DataQL\Input\Item\StdField;
 use DataQL\Process\Processor;
+use DataQL\Process\Resolver\ProcessResolver;
 use DataQL\Process\Type\InstanceResolver;
-use DataQL\Process\Walker\ProcessWalker;
 use DataQL\Schema\Schema;
 use DataQL\Type\Object\Context\ObjectContext;
 use DataQL\Type\Object\ObjectType;
@@ -58,7 +58,7 @@ $schema = new Schema(new ObjectType([
 			],
 		]),
 		'resolve' => function () {
-			// Needed for nested type
+			return ['name' => 'FAKE!'];
 		},
 	],
 	'heroes' => [
@@ -76,21 +76,20 @@ $schema = new Schema(new ObjectType([
 ]));
 
 
-// {date{day,month}}
-
-$dateNode1 = new InputNode();
-$dateNode1->addField(new StdField('day'));
-$dateNode1->addField(new StdField('month'));
-
-$nodeRoot1 = new InputNode();
-$nodeRoot1->addField(new NestedField('date', $dateNode1));
-$input1 = new InputQuery($nodeRoot1);
-
-
 // {echo}
 
+$nodeRoot1 = new InputNode();
+$nodeRoot1->addField(new StdField('echo'));
+$input1 = new InputQuery($nodeRoot1);
+
+// {date{day,month}}
+
+$dateNode2 = new InputNode();
+$dateNode2->addField(new StdField('day'));
+$dateNode2->addField(new StdField('month'));
+
 $nodeRoot2 = new InputNode();
-$nodeRoot2->addField(new StdField('echo'));
+$nodeRoot2->addField(new NestedField('date', $dateNode2));
 $input2 = new InputQuery($nodeRoot2);
 
 
@@ -111,10 +110,10 @@ $nodeRoot4->addField(new StdField('heroes'));
 $input4 = new InputQuery($nodeRoot4);
 
 
-$walker = new ProcessWalker();
+$walker = new ProcessResolver();
 $typeResolver = new InstanceResolver();
 $processor = new Processor($walker, $typeResolver);
 
 $processor->validate($schema);
 $data = $processor->process($schema, $input3);
-var_dump($data);
+dump($data);

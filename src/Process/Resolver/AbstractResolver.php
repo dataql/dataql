@@ -1,8 +1,9 @@
 <?php
 
-namespace DataQL\Process\Walker;
+namespace DataQL\Process\Resolver;
 
 use DataQL\Input\InputNode;
+use DataQL\Process\Walker\ResolverContext;
 use DataQL\Type\AbstractType;
 use DataQL\Type\Object\AbstractObjectType;
 use DataQL\Type\Object\Context\ObjectField;

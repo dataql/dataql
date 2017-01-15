@@ -4,25 +4,25 @@ namespace DataQL\Process;
 
 use DataQL\Input\InputNode;
 use DataQL\Input\InputQuery;
+use DataQL\Process\Resolver\ProcessResolver;
 use DataQL\Process\Type\ITypeResolver;
-use DataQL\Process\Walker\ProcessWalker;
 use DataQL\Schema\Schema;
 use DataQL\Type\Object\AbstractObjectType;
 
 class Processor
 {
 
-	/** @var ProcessWalker */
+	/** @var ProcessResolver */
 	private $walker;
 
 	/** @var ITypeResolver */
 	private $typeResolver;
 
 	/**
-	 * @param ProcessWalker $walker
+	 * @param ProcessResolver $walker
 	 * @param ITypeResolver $typeResolver
 	 */
-	public function __construct(ProcessWalker $walker, ITypeResolver $typeResolver)
+	public function __construct(ProcessResolver $walker, ITypeResolver $typeResolver)
 	{
 		$this->walker = $walker;
 		$this->typeResolver = $typeResolver;

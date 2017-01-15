@@ -3,6 +3,8 @@
 namespace DataQL\Type\Object;
 
 use DataQL\Process\Type\ITypeResolver;
+use DataQL\Process\Walker\AbstractWalkerResolver;
+use DataQL\Process\Walker\FieldWalkerResolver;
 use DataQL\Type\AbstractType;
 use DataQL\Type\Object\Context\ObjectContext;
 
@@ -64,6 +66,71 @@ abstract class AbstractObjectType extends AbstractType implements AttachableType
 	public function resolve($values)
 	{
 		$this->context->setValues($values);
+	}
+
+	/**
+	 * WALKING *****************************************************************
+	 */
+
+	/**
+	 * @param AbstractWalkerResolver $walker
+	 * @return mixed
+	 */
+	public function accept(AbstractWalkerResolver $walker)
+	{
+		$input = $walker->getInput();
+		$output = [];
+
+		// Iterate over all fields in input
+		foreach ($input->getFields() as $item) {
+			// Validate that requested field is present on type
+			if (!$this->context->hasField($item->getName())) {
+				throw new \RuntimeException(sprintf('Nested field "%s" not found', $item->getName()));
+			}
+
+			// Get field from type
+			$field = $this->context->getField($item->getName());
+
+			// Resolve field
+			$subwalker = new FieldWalkerResolver($walker, $field);
+			$subwalker->resolve($field->getTypeImpl());
+
+			$output[$item->getName()] = $field->getResult();
+		}
+
+		return $output;
+	}
+
+	/**
+	 * APPLYING (given raw values) *********************************************
+	 */
+
+	/**
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public function apply($value)
+	{
+		if (!is_array($value)) {
+			throw new \RuntimeException('Values must be array');
+		}
+
+		$output = [];
+
+		// Iterate over all fields in input
+		foreach ($this->context->getFields() as $name => $field) {
+			// Skip not required fields
+			if (!array_key_exists($name, $value)) continue;
+
+			// Set result to field
+			if ($field->hasResolve()) {
+				$output[$name] = call_user_func($field->getResolve());
+			} else {
+				$output[$name] = $field->getTypeImpl()->apply($value[$name]);
+			}
+		}
+
+		return $output;
 	}
 
 

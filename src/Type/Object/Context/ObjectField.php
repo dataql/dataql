@@ -71,6 +71,14 @@ final class ObjectField
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function hasResolve()
+	{
+		return $this->resolve !== NULL;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getType()

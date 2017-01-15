@@ -1,12 +1,14 @@
 <?php
 
-namespace DataQL\Process\Walker;
+namespace DataQL\Process\Resolver;
 
 use DataQL\Input\InputNode;
+use DataQL\Process\Walker\ResolverContext;
+use DataQL\Process\Walker\WalkerResolver;
 use DataQL\Type\Object\AbstractObjectType;
 use DataQL\Type\Object\Context\ObjectField;
 
-final class ProcessWalker extends AbstractResolver
+final class ProcessResolver
 {
 
 	/**
@@ -16,33 +18,31 @@ final class ProcessWalker extends AbstractResolver
 	 */
 	public function process(AbstractObjectType $type, InputNode $input)
 	{
-		$resolveContext = new ResolverContext();
-		$typeContext = $type->getContext();
 
-		$data = [];
-
-		// Iterate over all fields (1st level) in input
-		foreach ($input->getFields() as $item) {
-			// Validate that requested field is present on type
-			if (!$typeContext->hasField($item->getName())) {
-				throw new \RuntimeException(sprintf('Nested field "%s" not found', $item->getName()));
-			}
-
-			// Get field from type
-			$field = $typeContext->getField($item->getName());
-
-			// Resolve field/object
-			$this->resolve(
-				$type,
-				$field,
-				$input,
-				$resolveContext
-			);
-
-			$data[$item->getName()] = $field->getResult();
-		}
+		$walker = new WalkerResolver($type, $input);
+		$data = $type->accept($walker);
 
 		return $data;
+		//
+
+
+//		$data = [];
+//		$typeContext = $type->getContext();
+//
+//		// Iterate over all fields (1st level) in input
+//		foreach ($input->getFields() as $item) {
+//			// Validate that requested field is present on type
+//			if (!$typeContext->hasField($item->getName())) {
+//				throw new \RuntimeException(sprintf('Nested field "%s" not found', $item->getName()));
+//			}
+//
+//			// Get field from type
+//			$field = $typeContext->getField($item->getName());
+//
+//			$data[$item->getName()] = $field->getResult();
+//		}
+//
+//		return $data;
 	}
 
 	/**
@@ -58,24 +58,9 @@ final class ProcessWalker extends AbstractResolver
 	 */
 	protected function resolveField(AbstractObjectType $type, ObjectField $field, InputNode $input, ResolverContext $context)
 	{
-		$callback = $field->getResolve();
-
-		if ($callback !== NULL) {
-			$result = $callback();
-			$field->setResult($result);
-
-			return $result;
-		}
-
-		$values = $type->getContext()->getValues();
-
-		if (!isset($values[$field->getName()])) {
-			throw new \RuntimeException('No values for field');
-		}
-
-		$field->setResult($values[$field->getName()]);
-
-		return $values[$field->getName()];
+		$stop();
+		$walker = new WalkerResolver($type, $field, $input);
+		$field->getTypeImpl()->accept($walker);
 	}
 
 	/**
@@ -87,6 +72,7 @@ final class ProcessWalker extends AbstractResolver
 	 */
 	protected function resolveObject(AbstractObjectType $type, ObjectField $field, InputNode $input, ResolverContext $context)
 	{
+		$stop();
 		$callback = $field->getResolve();
 
 		if ($callback === NULL) {
