@@ -2,8 +2,16 @@
 
 namespace DataQL\Type\Scalar;
 
+use DataQL\Process\Walker\IWalkerResolver;
+
 class StringType extends AbstractScalarType
 {
+
+	public function accept(IWalkerResolver $walker)
+	{
+		$stop();    // TODO: Implement accept() method.
+	}
+
 
 	/**
 	 * @param mixed $value

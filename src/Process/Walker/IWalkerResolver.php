@@ -2,15 +2,21 @@
 
 namespace DataQL\Process\Walker;
 
-use DataQL\Type\AbstractType;
+use DataQL\Input\InputNode;
+use DataQL\Type\Object\Context\ObjectField;
 
 interface IWalkerResolver
 {
 
 	/**
-	 * @param AbstractType $type
+	 * @return InputNode
+	 */
+	public function getInput();
+
+	/**
+	 * @param ObjectField $field
 	 * @return mixed
 	 */
-	public function resolve(AbstractType $type);
+	public function resolve(ObjectField $field);
 
 }

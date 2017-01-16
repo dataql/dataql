@@ -57,9 +57,6 @@ $schema = new Schema(new ObjectType([
 				},
 			],
 		]),
-		'resolve' => function () {
-			return ['name' => 'FAKE!'];
-		},
 	],
 	'heroes' => [
 		'type' => new ListOfType(new StringType()),
@@ -71,6 +68,25 @@ $schema = new Schema(new ObjectType([
 		'type' => StringType::class,
 		'resolve' => function () {
 			return 'Hi!';
+		},
+	],
+	'fruits' => [
+		'type' => new ObjectType([
+			'kind' => [
+				'type' => new ObjectType([
+					'name' => [
+						'type' => new StringType(),
+					],
+				]),
+				'resolve' => function () {
+					return 'Africa Apple';
+				},
+			],
+		]),
+		'resolve' => function () {
+			return [
+				'kind' => 'Apple',
+			];
 		},
 	],
 ]));
@@ -110,10 +126,23 @@ $nodeRoot4->addField(new StdField('heroes'));
 $input4 = new InputQuery($nodeRoot4);
 
 
+// {fruits{kind{name}}
+
+$kindNode5 = new InputNode();
+$kindNode5->addField(new StdField('name'));
+
+$fruitNode5 = new InputNode();
+$fruitNode5->addField(new NestedField('kind', $kindNode5));
+
+$nodeRoot5 = new InputNode();
+$nodeRoot5->addField(new NestedField('fruits', $fruitNode5));
+$input5 = new InputQuery($nodeRoot5);
+
+
 $walker = new ProcessResolver();
 $typeResolver = new InstanceResolver();
 $processor = new Processor($walker, $typeResolver);
 
 $processor->validate($schema);
-$data = $processor->process($schema, $input3);
+$data = $processor->process($schema, $input5);
 dump($data);

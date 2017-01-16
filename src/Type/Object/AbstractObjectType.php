@@ -3,12 +3,11 @@
 namespace DataQL\Type\Object;
 
 use DataQL\Process\Type\ITypeResolver;
-use DataQL\Process\Walker\AbstractWalkerResolver;
-use DataQL\Process\Walker\FieldWalkerResolver;
+use DataQL\Process\Walker\IWalkerResolver;
 use DataQL\Type\AbstractType;
 use DataQL\Type\Object\Context\ObjectContext;
 
-abstract class AbstractObjectType extends AbstractType implements AttachableType, ResolvableType
+abstract class AbstractObjectType extends AbstractType implements AttachableType
 {
 
 	/** @var ObjectContext */
@@ -56,27 +55,14 @@ abstract class AbstractObjectType extends AbstractType implements AttachableType
 	abstract protected function build(ObjectContext $context);
 
 	/**
-	 * RESOLVABLE (fields + data) ************************************************
-	 */
-
-	/**
-	 * @param mixed $values
-	 * @return void
-	 */
-	public function resolve($values)
-	{
-		$this->context->setValues($values);
-	}
-
-	/**
 	 * WALKING *****************************************************************
 	 */
 
 	/**
-	 * @param AbstractWalkerResolver $walker
+	 * @param IWalkerResolver $walker
 	 * @return mixed
 	 */
-	public function accept(AbstractWalkerResolver $walker)
+	public function accept(IWalkerResolver $walker)
 	{
 		$input = $walker->getInput();
 		$output = [];
@@ -92,8 +78,7 @@ abstract class AbstractObjectType extends AbstractType implements AttachableType
 			$field = $this->context->getField($item->getName());
 
 			// Resolve field
-			$subwalker = new FieldWalkerResolver($walker, $field);
-			$subwalker->resolve($field->getTypeImpl());
+			$walker->resolve($field);
 
 			$output[$item->getName()] = $field->getResult();
 		}

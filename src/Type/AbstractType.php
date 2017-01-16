@@ -2,8 +2,8 @@
 
 namespace DataQL\Type;
 
-use DataQL\Process\Walker\AbstractWalkerResolver;
 use DataQL\Process\Walker\IWalker;
+use DataQL\Process\Walker\IWalkerResolver;
 
 abstract class AbstractType implements IWalker
 {
@@ -13,14 +13,5 @@ abstract class AbstractType implements IWalker
 	 * @return mixed
 	 */
 	abstract public function apply($value);
-
-	/**
-	 * @param AbstractWalkerResolver $walker
-	 * @return mixed
-	 */
-	public function accept(AbstractWalkerResolver $walker)
-	{
-		return $walker->resolve($this);
-	}
 
 }

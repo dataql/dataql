@@ -2,6 +2,7 @@
 
 namespace DataQL\Type\Special;
 
+use DataQL\Process\Walker\IWalkerResolver;
 use DataQL\Type\AbstractType;
 
 class ListOfType extends AbstractType
@@ -17,6 +18,12 @@ class ListOfType extends AbstractType
 	{
 		$this->inner = $inner;
 	}
+
+	public function accept(IWalkerResolver $walker)
+	{
+		$stop();    // TODO: Implement accept() method.
+	}
+
 
 	/**
 	 * @param array $value

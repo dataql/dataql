@@ -6,9 +6,9 @@ interface IWalker
 {
 
 	/**
-	 * @param AbstractWalkerResolver $walker
+	 * @param IWalkerResolver $walker
 	 * @return mixed
 	 */
-	public function accept(AbstractWalkerResolver $walker);
+	public function accept(IWalkerResolver $walker);
 
 }
